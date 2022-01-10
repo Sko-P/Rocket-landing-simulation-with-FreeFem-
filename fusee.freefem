@@ -1,0 +1,82 @@
+/* 
+
+PROJET : SIMULATION DESCENTE D'UNE FUSEE
+Travail fait par :
+ELBAHRAOUI Imade
+KHADRAOUI Mohamed El Bachir
+CHPS
+
+
+*/
+
+
+/* LES PARAMETRES A VARIER */
+
+int V = 100; //Vitesse m/s
+
+real e = 0.01; //Epaisseur du bouclier
+
+/* MAILLAGE */
+
+real x1 = 2.0, y1 = 1.0;
+real x2 = -2.0, y2 = 1.0;
+real x3 = -2.0, y3 = -1.0;
+real x4 = -0.75, y4 = -2.5;
+real x5 = -0.75, y5 = -6.5;
+real x6 = 0.75, y6=-6.5;
+real x7 = 0.75, y7 = -2.5;
+real x8 = 2.0, y8 = -1.0;
+real x9 = x1, y9= y1;
+
+real x0 = 0, y0 = y5;
+
+border a(t=-pi, 0){x=x0+0.75*cos(t); y=y0+0.75*sin(t); label=2;}
+border b1(t=0,1) {x = (1-t)*x1 + t*x2;y = (1-t)*y1 + t*y2;label= 1;}
+border b2(t=0,1) {x = (1-t)*x2 + t*x3;y = (1-t)*y2 + t*y3;label= 0;}
+border b3(t=0,1) {x = (1-t)*x3 + t*x4;y = (1-t)*y3 + t*y4;label= 2;}
+border b4(t=0,1) {x = (1-t)*x4 + t*x5;y = (1-t)*y4 + t*y5;label= 0;}
+border b5(t=0,1) {x = (1-t)*x6 + t*x7;y = (1-t)*y6 + t*y7;label= 0;}
+border b6(t=0,1) {x = (1-t)*x7 + t*x8;y = (1-t)*y7 + t*y8;label= 2;}
+border b7(t=0,1) {x = (1-t)*x8 + t*x9;y = (1-t)*y8 + t*y9;label= 0;}
+
+mesh th = buildmesh(b1(30) + b2(30) + b3(30) + b4(30) + a(30) + b5(30) + b6(30) + b7(30)) ;
+
+savemesh(th, "fusee.msh");
+
+
+
+/* DONNEES */
+
+func f = -0.5*exp(-(x^2 + y^2)); //Fonction source
+
+real k0 = 0.026; //Conductivité de l'air
+
+real k1 = 0.168; // Conductivité thermique de l'amiante 
+
+real alpha = k1/e;
+
+real beta = 10^8;
+
+real uE = 0.001 * (V^2);
+
+real uD = 20;
+
+
+/* SOLVEUR */
+
+fespace Vh(th, P1); // Espace EF
+Vh uh, vh;
+
+problem PbLAPLACE(uh, vh, solver = Cholesky) // Mise en place de la formulation variationnelle
+    = int2d(th)(dx(uh)*dx(vh) + dy(uh)*dy(vh))
+    - int2d(th)(f*vh)
+    +int1d(th,2)(alpha*uh*vh) //Ajout des termes de bords ayant pour condition Fourier-Robin
+    -int1d(th,2)(alpha*uE*vh)
+    +int1d(th,1)(beta*uh*vh) //Ajout de la pénalisation dans le cas de la condition de Dirichlet
+    -int1d(th,1)(beta*uD*vh);
+
+PbLAPLACE;
+
+cout << "uE = " <<uE << endl;
+cout << "uh = " <<uh[] << endl;
+plot(th, uh, cmm="Solution uh", fill=true, value=true);

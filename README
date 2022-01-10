@@ -1,0 +1,13 @@
+Ce projet a été réalisé par :
+
+ELBAHRAOUI Imade
+KHADRAOUI Mohamed El Bachir
+
+Ce dossier comprend :
+
+-fusee.freefem : Fichier FreeFem formant le maillage et contenant le solveur
+-fusee.msh : Le maillage en sortie de fusee.freefem
+-coeffelem.py/fichier.py/fonctions.py/validation.py : Fichiers Python. Exécutez validation.py pour l'exécution intégrale de la solution Python.
+-resultatsfreefem.png : Image contenant tous les résultats obtenu avec FreeFem
+-resultatpython.png : Image contenant tous les résultats obtenu avec Python
+-Rapport Projet KHADRAOUI.pdf : Le rapport du projet
